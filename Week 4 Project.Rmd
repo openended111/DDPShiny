@@ -1,0 +1,73 @@
+---
+title: "Developing Data Products Week 4 Project - Shiny"
+author: "Sang Cho"
+date: "July 23, 2017"
+output: slidy_presentation
+---
+
+```{r setup,include=FALSE,eval=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## State and Local Tax Rate by State
+- Data Source:  "https://files.taxfoundation.org/20170131121743/TaxFoundation-FF539.pdf"
+- Illustrates the average combined (state + local) tax rate by state
+
+## Data Processing
+
+- The data processing is included in the server.R File
+
+```{r, echo=TRUE,messages=FALSE,warning=FALSE,results="hide",eval=FALSE}
+data.tax <- as.data.frame(read.table(file="state tax.txt",sep=',',header=TRUE,na.strings=c(" ","NA","-")))
+avg.combined.tax <- data.tax[,c("State","Combined_Rate")]
+avg.combined.tax$Combined_Rate <- as.numeric(sub("%","",avg.combined.tax$Combined_Rate))/100
+avg.combined.tax[51,2] <- 0.0575
+
+```
+
+## ui.R
+- Code for ui.R in order to control what to be displayed as output
+
+```{r,eval=FALSE}
+library(shiny)
+shinyUI(fluidPage(
+  titlePanel("The average combined (state + local) tax rate by state"),
+  sidebarLayout(
+    sidebarPanel(
+       h1("Move the slider to control the range of tax rates"),
+       sliderInput("cbr",
+                   "Combined State and Local Tax Rate:",
+                   min = 0,
+                   max = 0.1,
+                   value = c(0.02, 0.09)),
+     submitButton("Submit")
+    ),
+    mainPanel(
+       h2("Histogram of the average combined tax rate by state"),
+       plotOutput("Histogram")
+  )
+)
+)
+)
+```
+
+## Server.R File
+- The output is to display the histogram conditionally based on setting the ranges of combined tax rate
+
+```{r, echo=TRUE,messages=FALSE,eval=FALSE}
+shinyServer(function(input, output) {
+    subdata <- reactive({
+      minY <- input$cbr[1]
+      maxY <- input$cbr[2]
+      subset(avg.combined.tax,Combined_Rate >= minY & Combined_Rate <= maxY)
+    })
+    output$Histogram <- renderPlot({
+    hist(subdata()$Combined_Rate, col = 'darkgray', border = 'white')
+    })
+  })
+```
+
+## Link to github and webapp
+-  Link to Github:  https://github.com/openended111/DDPShiny
+-  Link to Shiny App:  https://openended111.shinyapps.io/ddp_project/
+
