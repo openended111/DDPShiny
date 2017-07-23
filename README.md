@@ -4,3 +4,4 @@ average combined sales tax rate (State + Local) by states that would dynamically
 that we specify via using slider.
 
 The data source is found here:  https://files.taxfoundation.org/20170131121743/TaxFoundation-FF539.pdf
+Link to shinyApp is found here:  https://openended111.shinyapps.io/ddp_project/
